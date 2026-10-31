@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synchronous Machine Phasors</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="header">
+  <div><div id="logo">Synchronous <span>Machine</span></div><div id="logo-sub">Study pages for ELM3092 Electrical Machines 2</div></div>
+  <div id="tagline">* PHASORS * d-q AXES * V CURVES *</div>
+</div>
+<div id="topnav"><a href="index.html">Home</a><a href="phasor-and-v-curves.html">Phasor Diagram</a><a href="phasor-and-v-curves.html#vcurves">V Curves</a><a href="dq-decomposition.html">I_d / I_q</a></div>
+<div id="ticker"><div>
+  <b>Inductive load:</b> I<sub>d</sub> demagnetises, E<sub>f</sub> rises
+  <b>Capacitive load:</b> I<sub>d</sub> magnetises, E<sub>f</sub> falls
+  <b>V curve:</b> the bottom is unity power factor
+  <b>Salient pole:</b> X<sub>q</sub> is not larger than X<sub>d</sub>
+</div></div>
+<div id="breadcrumb"><a href="index.html">Home</a> &gt; <span id="crumb">Phasor Diagram</span></div>
+
+<div id="main">
+  <div id="left">
+    <div class="box">
+      <div class="box-title">Pages</div>
+      <div class="box-body">
+        <a class="nav" href="index.html">Home</a>
+        <a class="nav tab" data-view="phasor" href="#phasor">Phasor Diagram</a>
+        <a class="nav tab" data-view="vcurve" href="#vcurves">V Curves</a>
+        <a class="nav" href="dq-decomposition.html">I_d / I_q</a>
+      </div>
+    </div>
+    <div class="box" id="coloursBox">
+      <div class="box-title red">Colours</div>
+      <div class="box-body" id="colours"></div>
+    </div>
+  </div>
+
+  <div id="center">
+    <!-- ============ PHASORS ============ -->
+    <section class="view active" id="phasor">
+      <div class="notice" id="phasorNote"></div>
+      <div class="section">
+        <div class="section-title">PHASOR DIAGRAM</div>
+        <div class="section-desc">Salient-pole generator, two-reaction theory. Move the controls on the right.</div>
+        <div class="section-body">
+          <canvas id="cv" width="720" height="560"></canvas>
+          <div class="formula">E_f = V + R_a&middot;I_a + jX_d&middot;I_d + jX_q&middot;I_q<br>E_f = E_q' + (X_d - X_q)&middot;I_d, &nbsp; E_q' = V + I_a(R_a + jX_q)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ V CURVES ============ -->
+    <section class="view" id="vcurve">
+      <div class="notice"><b>Reading the curves.</b> An under-excited machine (left arm) looks inductive and draws reactive power from the grid. An over-excited machine (right arm) looks capacitive and supplies reactive power, like a synchronous condenser. The bottom of each curve is unity power factor and minimum armature current.</div>
+      <div class="section">
+        <div class="section-title">V CURVES</div>
+        <div class="section-desc">Cylindrical-rotor model with R<sub>a</sub> neglected, unlike the salient-pole model of the phasor diagram.</div>
+        <div class="section-body">
+          <canvas id="cv2" width="720" height="540"></canvas>
+          <div class="legend">
+            <span><i style="background:#0000cc"></i>Constant power curves</span>
+            <span><i style="background:#cc3300"></i>Selected power and operating point</span>
+            <span><i style="background:#008000"></i>Unity p.f. locus (min I<sub>a</sub>)</span>
+          </div>
+          <div class="formula">I_a = (E_f&ang;&delta; - V&ang;0) / (jX_s)<br>E_f&middot;sin&delta; = P&middot;X_s / V = constant</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="right">
+    <div class="view active" id="phasorSide">
+      <div class="box">
+        <div class="box-title red">Load Type</div>
+        <div class="box-body">
+          <div class="seg" id="seg">
+            <button class="btn on" data-k="res">Resistive</button>
+            <button class="btn" data-k="ind">Inductive</button>
+            <button class="btn" data-k="cap">Capacitive</button>
+          </div>
+          <div class="field"><label><span>Power factor angle &phi;</span> <b><span id="phiV">0</span> deg</b></label><input type="range" id="phi" min="0" max="60" value="0" disabled></div>
+          <div class="field"><label><span>Armature current I<sub>a</sub></span> <b><span id="iaV">1.00</span> pu</b></label><input type="range" id="ia" min="20" max="150" value="100"></div>
+          <div class="field"><label><span>X<sub>d</sub></span> <b><span id="xdV">1.00</span> pu</b></label><input type="range" id="xd" min="40" max="150" value="100"></div>
+          <div class="field"><label><span>X<sub>q</sub></span> <b><span id="xqV">0.60</span> pu</b></label><input type="range" id="xq" min="20" max="120" value="60"></div>
+          <div class="field"><label><span>R<sub>a</sub></span> <b><span id="raV">0.05</span> pu</b></label><input type="range" id="ra" min="0" max="20" value="5"></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-title">Results</div>
+        <table class="data">
+          <tr><td>Load angle &delta;</td><td class="v" id="deltaR">-</td></tr>
+          <tr><td>Induced E<sub>f</sub></td><td class="v" id="efR">-</td></tr>
+          <tr><td>Angle &psi; = &delta;+&phi;</td><td class="v" id="psiR">-</td></tr>
+          <tr><td>I<sub>d</sub></td><td class="v" id="idR">-</td></tr>
+          <tr><td>I<sub>q</sub></td><td class="v" id="iqR">-</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="view" id="vcurveSide">
+      <div class="box">
+        <div class="box-title red">Operating Point</div>
+        <div class="box-body">
+          <div class="field"><label><span>Output power P</span> <b><span id="pV">1.00</span> pu</b></label><input type="range" id="pwr" min="10" max="100" value="100"></div>
+          <div class="field"><label><span>Excitation E<sub>f</sub></span> <b><span id="efV">1.40</span> pu</b></label><input type="range" id="ef2" min="60" max="240" value="140"></div>
+          <div class="field"><label><span>X<sub>s</sub></span> <b><span id="xsV">1.00</span> pu</b></label><input type="range" id="xs" min="50" max="150" value="100"></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-title">Readout</div>
+        <table class="data">
+          <tr><td>Armature current I<sub>a</sub></td><td class="v" id="iaR2">-</td></tr>
+          <tr><td>Power factor</td><td class="v" id="pfR">-</td></tr>
+          <tr><td>Load angle &delta;</td><td class="v" id="dR2">-</td></tr>
+        </table>
+        <div class="box-body"><div class="region" id="regR">-</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="status"><div>ELM3092 study pages</div><div>Values in per unit</div><div>Works offline</div></div>
+<div id="footer"><a href="index.html">Home</a> | <a href="phasor-and-v-curves.html">Phasor Diagram</a> | <a href="phasor-and-v-curves.html#vcurves">V Curves</a> | <a href="dq-decomposition.html">I_d / I_q</a><br>&copy; 2026 1337leets. MIT License.</div>
+
+<script>
+// ---------- small complex number helpers ----------
+const C=(re,im=0)=>({re,im});
+const cadd=(a,b)=>C(a.re+b.re,a.im+b.im);
+const csub=(a,b)=>C(a.re-b.re,a.im-b.im);
+const cmul=(a,b)=>C(a.re*b.re-a.im*b.im, a.re*b.im+a.im*b.re);
+const cdiv=(a,b)=>{const d=b.re*b.re+b.im*b.im;return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)};
+const cabs=a=>Math.hypot(a.re,a.im);
+const carg=a=>Math.atan2(a.im,a.re);
+const cpolar=(m,th)=>C(m*Math.cos(th),m*Math.sin(th));
+const DEG=180/Math.PI;
+const FONT='Tahoma, Arial, sans-serif';
+
+const COLORS={V:'#000000',Ia:'#0000cc',Ef:'#cc3300',Id:'#cc7700',Iq:'#008000',axis:'#808080'};
+document.getElementById('colours').innerHTML=
+  [['V','V (terminal)'],['Ia','I<sub>a</sub> (armature)'],['Ef','E<sub>f</sub> (induced)'],['Id','I<sub>d</sub>'],['Iq','I<sub>q</sub>'],['axis','d / q axes']]
+  .map(([k,t])=>`<div><span style="color:${COLORS[k]}">&#9632;</span> ${t}</div>`).join('');
+
+// Writes a label such as I_d with a real subscript
+function subText(c,text,x,y,size,color){
+  c.fillStyle=color;
+  let px=x;
+  text.split(/(_\w)/).forEach(part=>{
+    if(!part)return;
+    const isSub=part[0]==='_';
+    c.font=`bold ${isSub?size-3:size}px ${FONT}`;
+    const s=isSub?part[1]:part;
+    c.fillText(s,px,isSub?y+3:y);
+    px+=(c.measureText(s)||{}).width||s.length*size*0.55;
+  });
+}
+
+// Finds a free spot for a label around a point, so labels do not sit on each other
+function placeLabel(placed,text,px,py,w,h,size){
+  const tw=text.replace(/_/g,'').length*size*0.62, th=size;
+  const spots=[[8,-6],[8,size+6],[-tw-8,-6],[-tw-8,size+6],[8,-size-10],[-tw/2,-size-10],[-tw/2,2*size+8],[8,2*size+10],[-tw-8,2*size+10],[-tw-8,-size-10]];
+  for(const [dx,dy] of spots){
+    const x=px+dx,y=py+dy;
+    if(x<4||x+tw>w-4||y-th<4||y+4>h-4)continue;
+    if(placed.every(b=>x+tw<b.x||x>b.x+b.w||y<b.y-b.h||y-th>b.y)){
+      placed.push({x,y,w:tw,h:th});return {x,y};
+    }
+  }
+  return {x:Math.min(Math.max(px+8,4),w-tw-4),y:Math.min(Math.max(py-6,th+4),h-8)};
+}
+
+// =================== PHASOR DIAGRAM ===================
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const S={type:'res',phi:0,ia:1.0,xd:1.0,xq:0.6,ra:0.05,V:1.0};
+
+function drawArrow(o,p,color,width=2,dash=null){
+  ctx.save();
+  ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width;
+  if(dash)ctx.setLineDash(dash);
+  ctx.beginPath(); ctx.moveTo(o.x,o.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+  ctx.setLineDash([]);
+  const ang=Math.atan2(p.y-o.y,p.x-o.x), len=Math.hypot(p.x-o.x,p.y-o.y);
+  if(len>6){
+    const h=10;
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    ctx.lineTo(p.x-h*Math.cos(ang-0.4),p.y-h*Math.sin(ang-0.4));
+    ctx.lineTo(p.x-h*Math.cos(ang+0.4),p.y-h*Math.sin(ang+0.4));
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function computePhasor(){
+  const V=C(S.V,0);
+  // sign of phi: inductive (lagging) current is behind V, -phi; capacitive +phi; resistive 0
+  let phi=0;
+  if(S.type==='ind') phi=-S.phi/DEG;
+  else if(S.type==='cap') phi=+S.phi/DEG;
+  const Ia=cpolar(S.ia, phi);
+  const Z_q=C(S.ra,S.xq);
+  const Eq = cadd(V, cmul(Ia,Z_q));      // gives the direction of the q-axis
+  const delta=carg(Eq);
+  // rotate Ia into the q-axis frame
+  const Iarot=cmul(Ia, cpolar(1,-delta));
+  const Iq=Iarot.re;          // q component (scalar)
+  const Id=-Iarot.im;         // d component (scalar)
+  const Ef_mag = cabs(Eq) + (S.xd-S.xq)*Id;
+  const Ef = cpolar(Ef_mag, delta);
+  return {V,Ia,Eq,delta,Iq,Id,Ef_mag,Ef,phi};
+}
+
+function renderPhasor(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const r=computePhasor();
+  const Iq_ph=cpolar(r.Iq, r.delta), Id_ph=cpolar(r.Id, r.delta-Math.PI/2);
+  const reach=Math.max(Math.abs(r.Ef_mag),S.ia,1)*1.1;
+  const qdir=cpolar(reach,r.delta), ddir=cpolar(reach*0.8,r.delta-Math.PI/2);
+
+  // fit everything into the drawing with room for the labels
+  const pts=[C(0,0),r.V,r.Ia,r.Ef,Iq_ph,Id_ph,qdir,ddir];
+  const xs=pts.map(p=>p.re), ys=pts.map(p=>p.im);
+  const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+  const pad=56;
+  const scale=Math.min((cv.width-2*pad)/(x1-x0),(cv.height-2*pad)/(y1-y0));
+  const cx=(cv.width-(x1-x0)*scale)/2-x0*scale, cy=(cv.height+(y1-y0)*scale)/2+y0*scale;
+  const M=(c)=>({x:cx+c.re*scale, y:cy-c.im*scale});
+  const O={x:cx,y:cy};
+
+  // grid on squared paper, then the horizontal reference
+  ctx.strokeStyle='#e4e0d4'; ctx.lineWidth=1;
+  for(let x=0;x<=cv.width;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cv.height);ctx.stroke();}
+  for(let y=0;y<=cv.height;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cv.width,y);ctx.stroke();}
+  ctx.strokeStyle='#b0b0b0'; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(10,cy); ctx.lineTo(cv.width-10,cy); ctx.stroke(); ctx.setLineDash([]);
+
+  // d/q axes (q = direction of E_f, d = q-90 deg)
+  drawArrow(O, M(qdir), COLORS.axis,1,[6,5]);
+  drawArrow(O, M(ddir), COLORS.axis,1,[6,5]);
+
+  // I_d, I_q first, so the main phasors stay on top
+  drawArrow(O, M(Iq_ph), COLORS.Iq,2,[5,4]);
+  drawArrow(O, M(Id_ph), COLORS.Id,2,[5,4]);
+  drawArrow(O, M(r.V), COLORS.V,3);
+  drawArrow(O, M(r.Ia), COLORS.Ia,3);
+  drawArrow(O, M(r.Ef), COLORS.Ef,3);
+
+  // delta arc (angle between E_f and V)
+  ctx.strokeStyle=COLORS.Ef; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(cx,cy,34,-r.delta,0); ctx.stroke();
+
+  const placed=[];
+  [['V',r.V,COLORS.V],['I_a',r.Ia,COLORS.Ia],['E_f',r.Ef,COLORS.Ef],['I_q',Iq_ph,COLORS.Iq],['I_d',Id_ph,COLORS.Id],['q',qdir,COLORS.axis],['d',ddir,COLORS.axis]]
+  .forEach(([t,p,col])=>{const m=M(p),l=placeLabel(placed,t,m.x,m.y,cv.width,cv.height,17);subText(ctx,t,l.x,l.y,17,col);});
+
+  // readouts
+  document.getElementById('deltaR').textContent=(r.delta*DEG).toFixed(1)+' deg';
+  document.getElementById('efR').textContent=r.Ef_mag.toFixed(3)+' pu';
+  document.getElementById('psiR').textContent=((r.delta - r.phi)*DEG).toFixed(1)+' deg';
+  document.getElementById('idR').textContent=r.Id.toFixed(3)+' pu';
+  document.getElementById('iqR').textContent=r.Iq.toFixed(3)+' pu';
+
+  const note=document.getElementById('phasorNote');
+  let t='';
+  if(S.type==='res') t='<b>Resistive load (&phi;=0).</b> I<sub>a</sub> is in phase with V. Armature reaction lies mostly on the q-axis, so cross-magnetisation dominates.';
+  else if(S.type==='ind') t='<b>Inductive load (current lags).</b> The large d-axis component gives a demagnetising armature reaction. The same V needs a higher E<sub>f</sub>, and therefore more excitation.';
+  else t='<b>Capacitive load (current leads).</b> The d-axis component magnetises the machine, so E<sub>f</sub> drops and can even fall below V. Less excitation is needed.';
+  if(r.Ef_mag<=0) t+=' <b>E<sub>f</sub> is not positive here.</b> These values have no normal operating point, because the field would have to be reversed.';
+  note.innerHTML=t;
+}
+
+// control bindings
+function setSlider(id,out,v){
+  S[id]=v; document.getElementById(id).value=Math.round(v*100);
+  document.getElementById(out).textContent=v.toFixed(2);
+}
+function bindP(){
+  document.querySelectorAll('#seg button').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on'); S.type=b.dataset.k;
+      const phiEl=document.getElementById('phi');
+      phiEl.disabled=(S.type==='res');
+      if(S.type==='res'){phiEl.value=0; S.phi=0; document.getElementById('phiV').textContent='0';}
+      else if(S.phi===0){phiEl.value=30; S.phi=30; document.getElementById('phiV').textContent='30';}  // otherwise the switch would change nothing
+      renderPhasor();
+    };
+  });
+  const map=[['phi','phi','phiV',1,0],['ia','ia','iaV',0.01,2],['xd','xd','xdV',0.01,2],['xq','xq','xqV',0.01,2],['ra','ra','raV',0.01,2]];
+  map.forEach(([id,key,out,mult,dec])=>{
+    document.getElementById(id).oninput=e=>{
+      S[key]=e.target.value*mult;
+      document.getElementById(out).textContent=(dec? (e.target.value*mult).toFixed(dec): e.target.value);
+      // a salient-pole machine has X_q <= X_d, so one slider pushes the other
+      if(key==='xd'&&S.xq>S.xd) setSlider('xq','xqV',S.xd);
+      if(key==='xq'&&S.xq>S.xd) setSlider('xd','xdV',S.xq);
+      renderPhasor();
+    };
+  });
+}
+bindP(); renderPhasor();
+
+// =================== V CURVES ===================
+const cv2=document.getElementById('cv2'), c2=cv2.getContext('2d');
+const VS={P:1.0,Ef:1.4,Xs:1.0,V:1.0};
+
+// armature current for a given P and Ef (cylindrical rotor assumption)
+function iaFor(P,Ef,Xs,V){
+  // P = V*Ef*sin(delta) / Xs, so sin(delta) = P*Xs/(V*Ef)
+  const s=P*Xs/(V*Ef);
+  if(Math.abs(s)>1) return null;            // this power cannot be delivered at this excitation
+  const delta=Math.asin(s);
+  const E=cpolar(Ef,delta);
+  const Ia=cdiv(csub(E,C(V,0)), C(0,Xs));
+  const pf=Math.cos(carg(Ia));
+  return {ia:cabs(Ia),delta,pf,Ia};
+}
+
+function renderV(){
+  c2.clearRect(0,0,cv2.width,cv2.height);
+  const padL=62,padB=56,padT=16,padR=18;
+  const W=cv2.width-padL-padR, H=cv2.height-padT-padB;
+  const efMin=0.6, efMax=2.4, iaMax=2.2;
+  const X=ef=>padL + (ef-efMin)/(efMax-efMin)*W;
+  const Y=ia=>padT + (1-ia/iaMax)*H;
+
+  // grid and axes
+  c2.strokeStyle='#d4d0c8'; c2.lineWidth=1; c2.font=`13px ${FONT}`; c2.fillStyle='#000000'; c2.textAlign='center';
+  for(let ef=0.6; ef<=2.4001; ef+=0.3){c2.beginPath();c2.moveTo(X(ef),padT);c2.lineTo(X(ef),padT+H);c2.stroke();c2.fillText(ef.toFixed(1),X(ef),padT+H+17);}
+  c2.textAlign='right';
+  for(let ia=0; ia<=2.2001; ia+=0.5){c2.beginPath();c2.moveTo(padL,Y(ia));c2.lineTo(padL+W,Y(ia));c2.stroke();c2.fillText(ia.toFixed(1),padL-6,Y(ia)+4);}
+  c2.strokeStyle='#000000'; c2.strokeRect(padL,padT,W,H);
+  c2.font=`bold 14px ${FONT}`; c2.textAlign='center';
+  c2.fillText('Excitation Ef, proportional to If (pu)',padL+W/2,padT+H+40);
+  c2.save(); c2.translate(18,padT+H/2); c2.rotate(-Math.PI/2); c2.fillText('Armature current Ia (pu)',0,0); c2.restore();
+  c2.textAlign='left';
+
+  // family of constant power curves
+  [0.25,0.5,0.75,1.0].forEach(P=>{
+    c2.beginPath(); let started=false;
+    for(let ef=efMin; ef<=efMax; ef+=0.01){
+      const r=iaFor(P,ef,VS.Xs,VS.V); if(!r||r.ia>iaMax)continue;
+      const x=X(ef),y=Y(r.ia);
+      if(!started){c2.moveTo(x,y);started=true;}else c2.lineTo(x,y);
+    }
+    c2.strokeStyle='#0000cc'; c2.lineWidth=1.3; c2.stroke();
+    // label below the bottom of the curve, where the curves are apart
+    const ia=P/VS.V, ef=Math.hypot(VS.V, ia*VS.Xs);
+    if(ef>efMin&&ef<efMax){c2.fillStyle='#0000cc';c2.font=`bold 12px ${FONT}`;c2.fillText('P='+P,X(ef)+6,Y(ia)+15);}
+  });
+
+  // unity p.f. locus (the min Ia point of each P)
+  c2.beginPath(); let st=false;
+  for(let P=0.05;P<=1.0;P+=0.01){
+    // unity p.f.: Ia is real (in phase with V), so Ia=P/V and Ef=sqrt(V^2+(Ia*Xs)^2)
+    const ia=P/VS.V; const ef=Math.hypot(VS.V, ia*VS.Xs);
+    if(ef<efMin||ef>efMax||ia>iaMax)continue;
+    const x=X(ef),y=Y(ia); if(!st){c2.moveTo(x,y);st=true;}else c2.lineTo(x,y);
+  }
+  c2.strokeStyle='#008000'; c2.lineWidth=2; c2.setLineDash([6,4]); c2.stroke(); c2.setLineDash([]);
+
+  // curve of the selected power, which may lie between the fixed levels
+  c2.beginPath(); let stS=false;
+  for(let ef=efMin; ef<=efMax; ef+=0.01){
+    const q=iaFor(VS.P,ef,VS.Xs,VS.V); if(!q||q.ia>iaMax)continue;
+    if(!stS){c2.moveTo(X(ef),Y(q.ia));stS=true;}else c2.lineTo(X(ef),Y(q.ia));
+  }
+  c2.strokeStyle='#cc3300'; c2.lineWidth=2.5; c2.stroke();
+
+  // selected operating point
+  const r=iaFor(VS.P,VS.Ef,VS.Xs,VS.V);
+  const pfUnityEf=Math.hypot(VS.V, (VS.P/VS.V)*VS.Xs);
+  const reg=document.getElementById('regR');
+  if(r){
+    if(r.ia<=iaMax){  // above the axis limit the numbers are still valid, only the dot is off the chart
+      const x=X(VS.Ef),y=Y(r.ia);
+      c2.fillStyle='#cc3300';
+      c2.beginPath(); c2.arc(x,y,6,0,7); c2.fill();
+      c2.strokeStyle='#cc3300'; c2.lineWidth=1; c2.setLineDash([3,3]);
+      c2.beginPath();c2.moveTo(x,padT+H);c2.lineTo(x,y);c2.lineTo(padL,y);c2.stroke();c2.setLineDash([]);
+    }
+    document.getElementById('iaR2').textContent=r.ia.toFixed(3)+' pu';
+    document.getElementById('pfR').textContent=r.pf.toFixed(3);
+    document.getElementById('dR2').textContent=(r.delta*DEG).toFixed(1)+' deg';
+    if(VS.Ef < pfUnityEf-0.02){reg.textContent='UNDER-EXCITED: inductive (draws reactive power)';reg.style.background='#880000';}
+    else if(VS.Ef > pfUnityEf+0.02){reg.textContent='OVER-EXCITED: capacitive (supplies reactive power)';reg.style.background='#006600';}
+    else{reg.textContent='UNITY POWER FACTOR (min Ia)';reg.style.background='#2a2a2a';}
+  }else{
+    document.getElementById('iaR2').textContent='-';
+    document.getElementById('pfR').textContent='-';
+    document.getElementById('dR2').textContent='-';
+    reg.textContent='This power cannot be delivered at this excitation (delta would pass 90 deg)'; reg.style.background='#880000';
+  }
+}
+
+[['pwr','P','pV',0.01,2],['ef2','Ef','efV',0.01,2],['xs','Xs','xsV',0.01,2]].forEach(([id,key,out,mult,dec])=>{
+  document.getElementById(id).oninput=e=>{VS[key]=e.target.value*mult; document.getElementById(out).textContent=(e.target.value*mult).toFixed(dec); renderV();};
+});
+renderV();
+
+// page switching, also from a link such as phasor-and-v-curves.html#vcurves
+function show(view){
+  ['phasor','vcurve'].forEach(v=>{
+    document.getElementById(v).classList[v===view?'add':'remove']('active');
+    document.getElementById(v+'Side').classList[v===view?'add':'remove']('active');
+  });
+  document.getElementById('coloursBox').style.display=view==='vcurve'?'none':'block';
+  document.getElementById('crumb').textContent=view==='vcurve'?'V Curves':'Phasor Diagram';
+  if(view==='vcurve') renderV(); else renderPhasor();
+}
+function fromHash(){ show(location.hash==='#vcurves'?'vcurve':'phasor'); }
+window.addEventListener('hashchange',fromHash);
+fromHash();
+</script>
+</body>
+</html>

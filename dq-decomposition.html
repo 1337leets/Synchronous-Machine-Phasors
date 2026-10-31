@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I_d and I_q Decomposition</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="header">
+  <div><div id="logo">Synchronous <span>Machine</span></div><div id="logo-sub">Study pages for ELM3092 Electrical Machines 2</div></div>
+  <div id="tagline">* PHASORS * d-q AXES * V CURVES *</div>
+</div>
+<div id="topnav"><a href="index.html">Home</a><a href="phasor-and-v-curves.html">Phasor Diagram</a><a href="phasor-and-v-curves.html#vcurves">V Curves</a><a href="dq-decomposition.html">I_d / I_q</a></div>
+<div id="ticker"><div>
+  <b>Key point:</b> I<sub>d</sub> is not zero for a resistive load
+  <b>Axes:</b> d and q follow E<sub>f</sub>, not V<sub>t</sub>
+  <b>Angle:</b> &psi; = &phi; + &delta;
+</div></div>
+<div id="breadcrumb"><a href="index.html">Home</a> &gt; I_d / I_q Decomposition</div>
+
+<div id="main">
+  <div id="left">
+    <div class="box">
+      <div class="box-title">Pages</div>
+      <div class="box-body">
+        <a class="nav" href="index.html">Home</a>
+        <a class="nav" href="phasor-and-v-curves.html">Phasor Diagram</a>
+        <a class="nav" href="phasor-and-v-curves.html#vcurves">V Curves</a>
+        <a class="nav" href="dq-decomposition.html">I_d / I_q</a>
+      </div>
+    </div>
+    <div class="box">
+      <div class="box-title red">Colours</div>
+      <div class="box-body">
+        <div><span style="color:#cc0000">&#9632;</span> V<sub>t</sub></div>
+        <div><span style="color:#0000cc">&#9632;</span> I<sub>a</sub></div>
+        <div><span style="color:#008000">&#9632;</span> E<sub>f</sub></div>
+        <div><span style="color:#cc7700">&#9632;</span> I<sub>d</sub></div>
+        <div><span style="color:#800080">&#9632;</span> I<sub>q</sub></div>
+        <div><span style="color:#000000">&#9632;</span> Voltage drops</div>
+        <div><span style="color:#808080">&#9632;</span> d / q axes</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="center">
+    <div class="notice">The d and q axes are defined by the direction of <b>E<sub>f</sub> (the q-axis)</b>, not by V<sub>t</sub>. The angle that sets the components is the one between I<sub>a</sub> and the q-axis, <b>&psi; = &phi; + &delta;</b>.</div>
+    <div id="grid"></div>
+    <div class="section">
+      <div class="section-title">COMPARISON</div>
+      <div class="section-body" style="line-height:1.6">
+        <b>Inductive:</b> &psi; is large, so I<sub>d</sub> is large and positive. It demagnetises, and E<sub>f</sub> is the largest of the three.<br>
+        <b>Resistive:</b> &psi; = &delta;, so I<sub>d</sub> is small but not zero.<br>
+        <b>Capacitive:</b> &psi; is negative, so I<sub>d</sub> is negative. It magnetises, and E<sub>f</sub> is the smallest.
+      </div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div class="box">
+      <div class="box-title red">Armature Resistance</div>
+      <div class="box-body"><button class="btn" id="raBtn" style="width:100%">R_a = 0 (neglected), click to enable</button></div>
+    </div>
+    <div class="box">
+      <div class="box-title">Machine Values</div>
+      <table class="data">
+        <tr><td>V<sub>t</sub></td><td class="v">1.00 pu</td></tr>
+        <tr><td>I<sub>a</sub></td><td class="v">0.82 pu</td></tr>
+        <tr><td>X<sub>d</sub></td><td class="v">1.00 pu</td></tr>
+        <tr><td>X<sub>q</sub></td><td class="v">0.55 pu</td></tr>
+      </table>
+    </div>
+    <div class="box">
+      <div class="box-title">Formulas</div>
+      <div class="box-body">
+        I<sub>q</sub> = I<sub>a</sub> cos &psi;<br>
+        I<sub>d</sub> = I<sub>a</sub> sin &psi;<br>
+        E<sub>f</sub> = V<sub>t</sub> + R<sub>a</sub>I<sub>a</sub> + jX<sub>d</sub>I<sub>d</sub> + jX<sub>q</sub>I<sub>q</sub><br>
+        E<sub>f</sub> = E<sub>q</sub>' + (X<sub>d</sub> - X<sub>q</sub>) I<sub>d</sub>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="status"><div>ELM3092 study pages</div><div>Values in per unit</div><div>Works offline</div></div>
+<div id="footer"><a href="index.html">Home</a> | <a href="phasor-and-v-curves.html">Phasor Diagram</a> | <a href="phasor-and-v-curves.html#vcurves">V Curves</a> | <a href="dq-decomposition.html">I_d / I_q</a><br>&copy; 2026 1337leets. MIT License.</div>
+
+<script>
+const C=(re,im=0)=>({re,im});
+const cadd=(a,b)=>C(a.re+b.re,a.im+b.im);
+const cmul=(a,b)=>C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
+const cabs=a=>Math.hypot(a.re,a.im), carg=a=>Math.atan2(a.im,a.re);
+const pol=(m,t)=>C(m*Math.cos(t),m*Math.sin(t));
+const D=Math.PI/180, DEG=180/Math.PI;
+
+const Vt=1.0, Ia=0.82, Xsd=1.0, Xsq=0.55;
+let Ra=0;   // the button switches it between 0 and 0.15
+const cases=[
+  {name:'INDUCTIVE (LAGGING)', tag:'phi = +35 deg. I_d demagnetises.', phi:+35},
+  {name:'RESISTIVE', tag:'phi = 0. I_d is not zero, which is the key point.', phi:0},
+  {name:'CAPACITIVE (LEADING)', tag:'phi = -35 deg. I_d magnetises.', phi:-35},
+];
+const COL={vt:'#cc0000',ia:'#0000cc',ef:'#008000',id:'#cc7700',iq:'#800080',axis:'#808080',drop:'#000000'};
+
+function compute(phiDeg){
+  const phi=phiDeg*D;
+  const Iav=pol(Ia,-phi);
+  const Eq=cadd(C(Vt,0),cmul(Iav,C(Ra,Xsq)));
+  const delta=carg(Eq);
+  const psi=delta+phi;
+  const Id=Ia*Math.sin(psi), Iq=Ia*Math.cos(psi);
+  const Ef=cabs(Eq)+(Xsd-Xsq)*Id;
+  return {phi,delta,psi,Id,Iq,Ef};
+}
+
+const NS="http://www.w3.org/2000/svg";
+const VBW=620, VBH=440, ox=120, oy=230, sc=210;   // V_t horizontal, origin at the middle left
+function P(mag,ang){return {x:ox+mag*sc*Math.cos(ang), y:oy-mag*sc*Math.sin(ang)};}
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function arrow(svg,a,b,color,w=3,dash=null){
+  const l=el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:color,'stroke-width':w});
+  if(dash)l.setAttribute('stroke-dasharray',dash);
+  svg.appendChild(l);
+  const ang=Math.atan2(b.y-a.y,b.x-a.x),h=11;
+  if(Math.hypot(b.x-a.x,b.y-a.y)>6)
+    svg.appendChild(el('polygon',{points:`${b.x},${b.y} ${b.x-h*Math.cos(ang-.42)},${b.y-h*Math.sin(ang-.42)} ${b.x-h*Math.cos(ang+.42)},${b.y-h*Math.sin(ang+.42)}`,fill:color}));
+}
+// Writes a label such as jX_d I_d with real subscripts
+function txt(svg,x,y,s,color,size=16){
+  const t=el('text',{x,y,fill:color,'font-size':size,'font-family':'Tahoma,Arial,sans-serif','font-weight':'bold'});
+  s.split(/(_\w)/).forEach(part=>{
+    if(!part)return;
+    const sp=el('tspan',{});
+    if(part[0]==='_'){sp.setAttribute('dy',4);sp.setAttribute('font-size',size-4);sp.textContent=part[1];}
+    else{if(t.childNodes.length)sp.setAttribute('dy',-4);sp.textContent=part;}
+    t.appendChild(sp);
+  });
+  svg.appendChild(t);
+}
+// Finds a free spot for a label around a point, so labels do not sit on each other
+function place(boxes,s,px,py,size){
+  const w=s.replace(/_/g,'').length*size*0.6, h=size;
+  const spots=[[8,-6],[8,size+6],[-w-8,-6],[-w-8,size+6],[8,-size-10],[-w/2,-size-10],[-w/2,2*size+8],[8,2*size+10],[-w-8,2*size+10],[-w-8,-size-10]];
+  for(const [dx,dy] of spots){
+    const x=px+dx,y=py+dy;
+    if(x<4||x+w>VBW-4||y-h<4||y+4>VBH-4)continue;
+    if(boxes.every(b=>x+w<b.x||x>b.x+b.w||y<b.y-b.h||y-h>b.y)){boxes.push({x,y,w,h});return {x,y};}
+  }
+  return {x:Math.min(px+8,VBW-w-4),y:Math.max(py-6,h+4)};
+}
+function arc(svg,a0,a1,r,color){
+  // short arc from a0 to a1, direction chosen automatically
+  const sweep=(a1>=a0)?0:1;
+  const x0=ox+r*Math.cos(a0),y0=oy-r*Math.sin(a0),x1=ox+r*Math.cos(a1),y1=oy-r*Math.sin(a1);
+  svg.appendChild(el('path',{d:`M ${x0} ${y0} A ${r} ${r} 0 0 ${sweep} ${x1} ${y1}`,fill:'none',stroke:color,'stroke-width':1.6}));
+}
+
+function draw(body,cs){
+  const r=compute(cs.phi);
+  const O={x:ox,y:oy};
+  const svg=el('svg',{viewBox:`0 0 ${VBW} ${VBH}`,class:'drawing'});
+  const qA=r.delta, dA=r.delta-Math.PI/2, iaA=-r.phi;
+
+  // axes (long, dashed)
+  const qE=P(2.1,qA), dE=P(1.0,dA), dN=P(0.45,dA+Math.PI);
+  svg.appendChild(el('line',{x1:O.x,y1:O.y,x2:qE.x,y2:qE.y,stroke:COL.axis,'stroke-width':1.2,'stroke-dasharray':'6 5'}));
+  svg.appendChild(el('line',{x1:dN.x,y1:dN.y,x2:dE.x,y2:dE.y,stroke:COL.axis,'stroke-width':1.2,'stroke-dasharray':'6 5'}));
+
+  // projection rectangle
+  const pIa=P(Ia,iaA), pIq=P(r.Iq,qA), pId=P(r.Id,dA);
+  svg.appendChild(el('line',{x1:pIa.x,y1:pIa.y,x2:pIq.x,y2:pIq.y,stroke:'#b0b0b0','stroke-width':1,'stroke-dasharray':'4 4'}));
+  svg.appendChild(el('line',{x1:pIa.x,y1:pIa.y,x2:pId.x,y2:pId.y,stroke:'#b0b0b0','stroke-width':1,'stroke-dasharray':'4 4'}));
+
+  // components and main phasors
+  arrow(svg,O,pId,COL.id,3);
+  arrow(svg,O,pIq,COL.iq,3);
+  arrow(svg,O,P(r.Ef,qA),COL.ef,3);
+  arrow(svg,O,P(Vt,0),COL.vt,3.4);
+  arrow(svg,O,pIa,COL.ia,3.4);
+
+  // ---- voltage construction: tip of V_t, +R_a*I_a, +jXd*Id, +jXq*Iq, tip of E_f ----
+  const vTip=P(Vt,0);
+  // R_a*I_a is in the direction of I_a, no j
+  const r0={x:vTip.x + Ra*Ia*sc*Math.cos(iaA), y:vTip.y - Ra*Ia*sc*Math.sin(iaA)};
+  if(Ra>0) arrow(svg,vTip,r0,'#880000',2.2);
+  const d1={x:r0.x + Xsd*r.Id*sc*Math.cos(qA), y:r0.y - Xsd*r.Id*sc*Math.sin(qA)};
+  const d2={x:d1.x + Xsq*r.Iq*sc*Math.cos(qA+Math.PI/2), y:d1.y - Xsq*r.Iq*sc*Math.sin(qA+Math.PI/2)};
+  arrow(svg,r0,d1,COL.drop,2.2);
+  arrow(svg,d1,d2,COL.drop,2.2);
+  const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+
+  // angles: delta (V_t to q), psi (q to I_a)
+  arc(svg,0,qA,52,COL.ef);
+  arc(svg,iaA,qA,34,COL.iq);
+
+  // labels, the main ones first so they get the best spots
+  const boxes=[];
+  const labels=[['E_f',P(r.Ef,qA),COL.ef,16],['V_t',vTip,COL.vt,16],['I_a',pIa,COL.ia,16],['I_q',pIq,COL.iq,15],['I_d',pId,COL.id,15],
+    ['jX_dI_d',mid(r0,d1),COL.drop,13],['jX_qI_q',mid(d1,d2),COL.drop,13],['q-axis',qE,COL.axis,13],['d-axis',dE,COL.axis,13]];
+  if(Ra>0) labels.push(['R_aI_a',mid(vTip,r0),'#880000',13]);
+  const dLab=P(0.3,qA/2), pLab=P(0.2,(iaA+qA)/2);
+  labels.push(['δ',dLab,COL.ef,14],['ψ',pLab,COL.iq,14]);
+  labels.forEach(([s,p,col,size])=>{const l=place(boxes,s,p.x,p.y,size);txt(svg,l.x,l.y,s,col,size);});
+
+  body.appendChild(svg);
+
+  const t=document.createElement('table'); t.className='data'; t.style.marginTop='4px';
+  t.innerHTML=`<tr><th>&delta;</th><th>&psi; = &phi;+&delta;</th><th>I<sub>q</sub></th><th>I<sub>d</sub></th><th>E<sub>f</sub></th></tr>`+
+    `<tr><td>${(r.delta*DEG).toFixed(1)} deg</td><td>${(r.psi*DEG).toFixed(1)} deg</td><td>${r.Iq.toFixed(3)}</td><td>${r.Id.toFixed(3)}</td><td>${r.Ef.toFixed(3)}</td></tr>`;
+  body.appendChild(t);
+}
+
+const grid=document.getElementById('grid');
+function renderAll(){
+  grid.innerHTML='';
+  cases.forEach(cs=>{
+    const p=document.createElement('div'); p.className='section';
+    const h=document.createElement('div'); h.className='section-title'; h.textContent=cs.name; p.appendChild(h);
+    const t=document.createElement('div'); t.className='section-desc'; t.textContent=cs.tag; p.appendChild(t);
+    const b=document.createElement('div'); b.className='section-body'; p.appendChild(b);
+    draw(b,cs);
+    grid.appendChild(p);
+  });
+}
+renderAll();
+
+const raBtn=document.getElementById('raBtn');
+raBtn.onclick=()=>{
+  Ra = (Ra===0)? 0.15 : 0;
+  raBtn.textContent = (Ra===0)? 'R_a = 0 (neglected), click to enable' : 'R_a = 0.15 pu (on), click to disable';
+  raBtn.classList.toggle('on',Ra!==0);
+  renderAll();
+};
+</script>
+</body>
+</html>
