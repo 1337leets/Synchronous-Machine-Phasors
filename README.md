@@ -4,7 +4,7 @@ Interactive web pages for studying the synchronous generator in ELM3092 Electric
 University (YTU). They show how the load changes the phasor diagram, how the armature current splits into d and q
 components, and what the V curves mean. They are study aids, not a design tool.
 
-Try it in the browser at <https://1337leets.github.io/synchronous-machine-phasors/>.
+Try it in the browser at <https://1337leets.github.io/Synchronous-Machine-Phasors/>.
 
 ## Pages
 
